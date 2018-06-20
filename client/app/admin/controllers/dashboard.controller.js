@@ -10,7 +10,7 @@ angular.module('serviceDeskApp')
     $http.get('/api/issues').success(function(issues) {
 		$scope.issues = issues;
 		$scope.counts={};
-		$scope.totalIssues=issues.length;
+		$scope.totalIssues = issues.length;
 		var itemsArray = [];
 		var itemIds = issues
 		
@@ -111,4 +111,33 @@ angular.module('serviceDeskApp')
 
         });
 });
+    
+    $http.get('/api/ictstore').success(function(ictstores) {
+		$scope.ictcalls = ictstores;
+		$scope.ictcounts={};
+		$scope.totalictcalls = ictstores.length;
+		var itemsArray = [];
+		var itemIds = ictstores
+		
+		for (var i = 0; i < ictstores.length; i++) {
+			var status =itemIds[i].assetPriority.priorityName
+			
+			itemsArray.push(status);
+			
+			if(itemIds.length === itemsArray.length){
+				console.log(itemsArray)
+				$scope.ictcounts = {}, i, $scope.value;
+				for (i = 0; i < itemsArray.length; i++) {
+					$scope.value = itemsArray[i];
+					if (typeof $scope.ictcounts[$scope.value] === "undefined") {
+						$scope.ictcounts[$scope.value] = 1;
+					} else {
+						$scope.ictcounts[$scope.value]++;
+					}
+				}
+				console.log($scope.ictcounts);
+			}
+		};
+		socket.syncUpdates('ictstore', $scope.ictstore,function(event,ictstore,ictstores){});
+    });
 	});

@@ -45,7 +45,7 @@ exports.index = function(req, res) {
 			var status =itemIds[i].issueStatus.issueStatusName
 			itemsArray.push(status);
 			if(itemIds.length === itemsArray.length){
-				console.log(itemsArray)
+				//console.log(itemsArray)
 				var counts = {}, i, value;
 				for (i = 0; i < itemsArray.length; i++) {
 					value = itemsArray[i];
@@ -55,7 +55,7 @@ exports.index = function(req, res) {
 						counts[value]++;
 					}
 				}
-				console.log(counts);
+				//console.log(counts);
 			}
 		};
 		
@@ -84,13 +84,13 @@ exports.show = function(req, res) {
 exports.create = function(req, res) {
 	Issue.create(req.body, function(err, issue) {
         
-        queue.create('mohapi.mokoena@skhomotech.co.za', {  
+        queue.create('mduze@skhomotech.co.za', {  
 
         title: 'Testing Issues',
 
-        to: 'mohapi.mokoena@skhomotech.co.za',
+        to: 'mduze@skhomotech.co.za',
 
-        template: 'checking the issue '+ issue.issueDescription
+        template: 'checking the issue '+ req.body.issueDescription
 
             
 
@@ -103,23 +103,32 @@ exports.create = function(req, res) {
 	});
 };
 
+
 // Updates an existing jobcard in the DB.
 exports.update = function(req, res) {
-	if(req.body._id) { delete req.body._id; }
+	if(req.body._id) { 
+        delete req.body._id; 
+    }
 	Issue.findById(req.params.id, function (err, issue) {
 
-		if(req.body.comments) {
+		if(req.body.comments != null) {
 			issue.comments = req.body.comments;
 		}
 
-		if (err) { return handleError(res, err); }
-		if(!issue) { return res.send(404); }
+		if (err) { 
+            return handleError(res, err); 
+        }
+		if(!issue) { 
+            return res.send(404); 
+        }
 		var updated = _.merge(issue, req.body);
 
 		updated.markModified('comments');
 
 		updated.save(function (err) {
-			if (err) { return handleError(res, err); }
+			if (err) { 
+                return handleError(res, err); 
+            }
 			return res.json(200, issue);
 		});
 	});
@@ -187,6 +196,28 @@ exports.showIssuesByCategory = function(req, res) {
 exports.showJobIssuesByStatus = function(req, res) {
 	Issue.find({
 		issueStatus:req.params.status
+	}).sort({added:1})
+	  .populate('issueCategory','categoryName')
+	  .populate('issueStatus','issueStatusName')
+	  .populate('issueChannel','channelName')
+	  .populate('issuePriority','priorityName prioritySLA')
+	  .populate('issueDivision','divisionName')
+    .exec(function (err, issues) {
+		if(err) { return handleError(res, err); }
+		return res.json(200, issues);
+	});
+};
+
+// Search Issues By Date
+exports.showJobIssuesByDate = function(req, res) {
+    var dateRange = JSON.parse(req.params.dateRange);
+    var startDate = dateRange.startDate,
+        endDate = dateRange.endDate;
+	Issue.find({
+        added: {
+            $gte: startDate,
+            $lt: endDate
+        }
 	}).sort({added:1})
 	  .populate('issueCategory','categoryName')
 	  .populate('issueStatus','issueStatusName')

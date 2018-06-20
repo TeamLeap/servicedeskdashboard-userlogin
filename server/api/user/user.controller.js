@@ -64,34 +64,9 @@ var validationError = function(res, err) {
 			//mail.userConfirmation.sendMail(templateName, locals, null);
 			
  			//mail.userConfirmation.sendMail(req.body.firstName, req.body.email, mailConfirmationToken, null);
-			//mail.userConfirmation.sendMail(user.name, user.email, mailConfirmationToken, null)
-        jwt.verify(mailConfirmationToken, config.secrets.mailConfirmation, function(error, data) {
-
- 		if (error) return res.send(403);
-
- 		if (data.exp < Date.now()) return res.send(403);
-
- 		User.findOne({email: data.email}, function(error, user){
- 			if (error) return res.send(403);
- 			if (user) return res.send(403);
-
- 			var newUser = new User(data);
- 			newUser.provider = 'locals';
- 			newUser.role = 'admin';
- 			newUser.confirmedEmail = true;
-
- 			newUser.save(function(err, user) {
- 				if (err) return validationError(res, err);
- 				var token = jwt.sign({_id: user._id }, config.secrets.session, { expiresInMinutes: 60*5 });
- 				res.json({ token: token });
- 			});
+			mail.userConfirmation.sendMail(user.name, user.email, mailConfirmationToken, null)
 
  		});
- 	});
-
- 		});
-        
-        
  	}
 };
 

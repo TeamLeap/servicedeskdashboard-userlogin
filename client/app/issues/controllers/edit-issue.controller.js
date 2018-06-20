@@ -43,13 +43,13 @@ angular.module('serviceDeskApp')
         $scope.issue = issue;
         if($scope.submitted) {
 
-            $scope.issue.issueUser = issue.user._id;
-            $scope.issue.issueCategory = issue.category._id;
-            $scope.issue.issueChannel = issue.channel._id;
-            $scope.issue.issuePriority = issue.priority._id;
-            $scope.issue.issueDivision = issue.division._id;
+            $scope.issue.issueUser = issue.issueUser._id;
+            $scope.issue.issueCategory = issue.issueCategory._id;
+            $scope.issue.issueChannel = issue.issueChannel._id;
+            $scope.issue.issuePriority = issue.issuePriority._id;
+            $scope.issue.issueDivision = issue.issueDivision._id;
 
-            $http.post('/api/issues',$scope.issue);
+            $http.put('/api/issues/' + $scope.issue_id,issue);
             $scope.issue = '';
             $location.path('/issues');
         }
